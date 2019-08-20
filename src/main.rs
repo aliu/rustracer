@@ -1,5 +1,6 @@
 mod config;
 mod rt;
+mod vec3;
 
 use std::env;
 use std::process;
