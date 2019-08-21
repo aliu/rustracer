@@ -24,21 +24,25 @@ pub fn render(config: Config) -> Result<(), String> {
     Ok(())
 }
 
-fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> bool {
+fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> Option<f64> {
     let center = ray.start - center;
     let a = ray.direction.dot(ray.direction);
     let b = 2.0 * center.dot(ray.direction);
     let c = center.dot(center) - (radius * radius);
+    let discriminant = (b * b) - (4.0 * a * c);
 
-    (b * b) - (4.0 * a * c) > 0.0
+    if discriminant < 0.0 {
+        return None;
+    }
+    Some((-b - discriminant.sqrt()) / (2.0 * a))
 }
 
 fn color(ray: Ray) -> [u8; 3] {
     let sphere_center = Vec3::new(0.0, 0.0, -1.0);
-    let sphere_color = Vec3::new(1.0, 0.0, 0.0);
 
-    if hit_sphere(sphere_center, 0.5, ray) {
-        return sphere_color.to_rgb();
+    if let Some(t) = hit_sphere(sphere_center, 0.5, ray) {
+        let normal = (ray.point_at(t) - Vec3::new(0.0, 0.0, -1.0)).normalize();
+        return (0.5 * (normal + Vec3::new(1.0, 1.0, 1.0))).to_rgb();
     }
 
     let white = Vec3::new(1.0, 1.0, 1.0);
