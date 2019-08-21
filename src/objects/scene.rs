@@ -1,4 +1,4 @@
-use crate::object::{HitData, Object};
+use crate::objects::{HitData, Object};
 use crate::ray::Ray;
 
 pub struct Scene {

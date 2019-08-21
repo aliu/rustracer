@@ -2,10 +2,8 @@ use std::f64;
 
 use crate::config::Config;
 use crate::image::Image;
-use crate::object::Object;
+use crate::objects::*;
 use crate::ray::Ray;
-use crate::scene::Scene;
-use crate::sphere::Sphere;
 use crate::vec3::Vec3;
 
 pub fn render(config: Config) -> Result<(), String> {
