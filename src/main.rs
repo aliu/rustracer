@@ -1,4 +1,5 @@
 mod config;
+mod ray;
 mod rt;
 mod vec3;
 
