@@ -27,14 +27,14 @@ pub fn render(config: Config) -> Result<(), String> {
     let image = Image::new(width, height, |x, y| {
         (0..samples)
             .map(|_| {
-                let h = (x as f64 + rand()) / width as f64;
-                let v = (y as f64 + rand()) / height as f64;
+                let h = (f64::from(x) + rand()) / f64::from(width);
+                let v = (f64::from(y) + rand()) / f64::from(height);
                 let ray = camera.ray(h, v);
 
                 color(ray, &scene)
             })
             .fold(Vec3::new(0.0, 0.0, 0.0), |sum, x| sum + x)
-            / samples as f64
+            / f64::from(samples)
     });
 
     image.save(config.file)?;
