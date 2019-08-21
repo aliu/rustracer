@@ -1,5 +1,6 @@
 use std::f64;
 
+use crate::camera::Camera;
 use crate::config::Config;
 use crate::image::Image;
 use crate::objects::*;
@@ -9,10 +10,12 @@ use crate::vec3::Vec3;
 pub fn render(config: Config) -> Result<(), String> {
     let (width, height) = (200, 100);
 
-    let corner = Vec3::new(-2.0, -1.0, -1.0);
-    let horizonal = Vec3::new(4.0, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, 2.0, 0.0);
-    let origin = Vec3::new(0.0, 0.0, 0.0);
+    let camera = Camera::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(-2.0, -1.0, -1.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 2.0, 0.0),
+    );
 
     let mut scene = Scene::new();
     scene.add_object(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5));
@@ -22,7 +25,7 @@ pub fn render(config: Config) -> Result<(), String> {
         let h = x as f64 / width as f64;
         let v = y as f64 / height as f64;
 
-        let ray = Ray::new(origin, corner + (h * horizonal) + (v * vertical));
+        let ray = camera.ray(h, v);
         color(ray, &scene)
     });
 

@@ -1,3 +1,4 @@
+mod camera;
 mod config;
 mod image;
 mod objects;
