@@ -1,7 +1,10 @@
 mod config;
 mod image;
+mod object;
 mod ray;
 mod rt;
+mod scene;
+mod sphere;
 mod vec3;
 
 use std::env;
