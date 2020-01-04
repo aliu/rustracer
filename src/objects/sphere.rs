@@ -1,3 +1,4 @@
+use crate::materials::Material;
 use crate::objects::{HitData, Object};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
@@ -5,11 +6,16 @@ use crate::vec3::Vec3;
 pub struct Sphere {
     center: Vec3,
     radius: f64,
+    material: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Sphere {
-        Sphere { center, radius }
+    pub fn new(center: Vec3, radius: f64, material: impl Material + 'static) -> Sphere {
+        Sphere {
+            center,
+            radius,
+            material: Box::new(material),
+        }
     }
 }
 
@@ -30,7 +36,12 @@ impl Object for Sphere {
                     let t = *root;
                     let p = ray.point_at(t);
                     let normal = (p - self.center) / self.radius;
-                    return Some(HitData { t, p, normal });
+                    return Some(HitData {
+                        t,
+                        p,
+                        normal,
+                        material: &*self.material,
+                    });
                 }
             }
         }

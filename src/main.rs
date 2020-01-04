@@ -1,9 +1,11 @@
 mod camera;
 mod config;
 mod image;
+mod materials;
 mod objects;
 mod ray;
 mod rt;
+mod util;
 mod vec3;
 
 use std::env;

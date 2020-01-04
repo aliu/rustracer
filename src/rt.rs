@@ -1,12 +1,12 @@
 use std::f64;
 
-use rand::Rng;
-
 use crate::camera::Camera;
 use crate::config::Config;
 use crate::image::Image;
+use crate::materials::*;
 use crate::objects::*;
 use crate::ray::Ray;
+use crate::util;
 use crate::vec3::Vec3;
 
 pub fn render(config: Config) -> Result<(), String> {
@@ -21,20 +21,41 @@ pub fn render(config: Config) -> Result<(), String> {
     );
 
     let mut scene = Scene::new();
-    scene.add_object(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5));
-    scene.add_object(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0));
+    scene.add_object(Sphere::new(
+        Vec3::new(-1.0, 0.0, -1.0),
+        0.5,
+        Metal::new(Vec3::new(0.8, 0.8, 0.8)),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(0.0, 0.0, -1.0),
+        0.5,
+        Lambertian::new(Vec3::new(0.8, 0.3, 0.3)),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(1.0, 0.0, -1.0),
+        0.5,
+        Metal::new(Vec3::new(0.8, 0.6, 0.2)),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(0.0, -100.5, -1.0),
+        100.0,
+        Lambertian::new(Vec3::new(0.8, 0.8, 0.0)),
+    ));
 
     let image = Image::new(width, height, |x, y| {
-        (0..samples)
+        let avg = (0..samples)
             .map(|_| {
-                let h = (f64::from(x) + rand()) / f64::from(width);
-                let v = (f64::from(y) + rand()) / f64::from(height);
+                let h = (f64::from(x) + util::random()) / f64::from(width);
+                let v = (f64::from(y) + util::random()) / f64::from(height);
                 let ray = camera.ray(h, v);
 
-                color(ray, &scene)
+                color(ray, &scene, 0)
             })
             .fold(Vec3::new(0.0, 0.0, 0.0), |sum, x| sum + x)
-            / f64::from(samples)
+            / f64::from(samples);
+
+        // gamma correction
+        avg.map(|x| x.sqrt())
     });
 
     image.save(config.file)?;
@@ -42,17 +63,18 @@ pub fn render(config: Config) -> Result<(), String> {
     Ok(())
 }
 
-fn color(ray: Ray, scene: &Scene) -> Vec3 {
-    if let Some(hit_data) = scene.hit(ray, 0.0, f64::MAX) {
-        return 0.5 * (hit_data.normal + Vec3::new(1.0, 1.0, 1.0));
+fn color(ray: Ray, scene: &Scene, depth: u32) -> Vec3 {
+    if let Some(hit_data) = scene.hit(ray, 0.001, f64::MAX) {
+        if depth < 50 {
+            if let Some(scatter_data) = hit_data.material.scatter(ray, &hit_data) {
+                return scatter_data.attenuation * color(scatter_data.scattered, scene, depth + 1);
+            }
+        }
+        return Vec3::new(0.0, 0.0, 0.0);
     }
 
     let unit = ray.direction.normalize();
     let t = 0.5 * (unit.y + 1.0);
 
     ((1.0 - t) * Vec3::new(1.0, 1.0, 1.0)) + (t * Vec3::new(0.5, 0.7, 1.0))
-}
-
-fn rand() -> f64 {
-    rand::thread_rng().gen()
 }

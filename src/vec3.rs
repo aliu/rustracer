@@ -27,6 +27,13 @@ impl Vec3 {
         self / self.norm()
     }
 
+    pub fn map<F>(&self, f: F) -> Vec3
+    where
+        F: Fn(f64) -> f64,
+    {
+        Vec3::new(f(self.x), f(self.y), f(self.z))
+    }
+
     pub fn to_rgb(self) -> [u8; 3] {
         fn inner(x: f64) -> u8 {
             (x * 255.99) as u8
@@ -55,6 +62,18 @@ impl Sub for Vec3 {
             x: self.x - other.x,
             y: self.y - other.y,
             z: self.z - other.z,
+        }
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
         }
     }
 }
