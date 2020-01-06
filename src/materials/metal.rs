@@ -17,7 +17,7 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: Ray, hit_data: &HitData) -> Option<ScatterData> {
-        let reflected = reflect(ray.direction.normalize(), hit_data.normal);
+        let reflected = super::reflect(ray.direction.normalize(), hit_data.normal);
         let scattered = Ray::new(
             hit_data.p,
             reflected + self.fuzziness * util::unit_sphere_random(),
@@ -32,8 +32,4 @@ impl Material for Metal {
 
         None
     }
-}
-
-fn reflect(v: Vec3, normal: Vec3) -> Vec3 {
-    v - 2.0 * v.dot(normal) * normal
 }

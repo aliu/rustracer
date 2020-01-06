@@ -24,17 +24,22 @@ pub fn render(config: Config) -> Result<(), String> {
     scene.add_object(Sphere::new(
         Vec3::new(-1.0, 0.0, -1.0),
         0.5,
-        Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.3),
+        Dielectric::new(1.5),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(-1.0, 0.0, -1.0),
+        -0.45,
+        Dielectric::new(1.5),
     ));
     scene.add_object(Sphere::new(
         Vec3::new(0.0, 0.0, -1.0),
         0.5,
-        Lambertian::new(Vec3::new(0.8, 0.3, 0.3)),
+        Lambertian::new(Vec3::new(0.1, 0.2, 0.5)),
     ));
     scene.add_object(Sphere::new(
         Vec3::new(1.0, 0.0, -1.0),
         0.5,
-        Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0),
+        Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3),
     ));
     scene.add_object(Sphere::new(
         Vec3::new(0.0, -100.5, -1.0),
