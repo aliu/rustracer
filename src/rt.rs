@@ -24,7 +24,7 @@ pub fn render(config: Config) -> Result<(), String> {
     scene.add_object(Sphere::new(
         Vec3::new(-1.0, 0.0, -1.0),
         0.5,
-        Metal::new(Vec3::new(0.8, 0.8, 0.8)),
+        Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.3),
     ));
     scene.add_object(Sphere::new(
         Vec3::new(0.0, 0.0, -1.0),
@@ -34,7 +34,7 @@ pub fn render(config: Config) -> Result<(), String> {
     scene.add_object(Sphere::new(
         Vec3::new(1.0, 0.0, -1.0),
         0.5,
-        Metal::new(Vec3::new(0.8, 0.6, 0.2)),
+        Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0),
     ));
     scene.add_object(Sphere::new(
         Vec3::new(0.0, -100.5, -1.0),
