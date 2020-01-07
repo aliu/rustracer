@@ -10,43 +10,18 @@ use crate::util;
 use crate::vec3::Vec3;
 
 pub fn render(config: Config) -> Result<(), String> {
-    let (width, height) = (200, 100);
-    let samples = 100;
+    let (width, height) = (400, 200);
+    let samples = 10;
 
     let camera = Camera::new(
-        Vec3::new(-2.0, 2.0, 1.0),
-        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::new(12.0, 2.0, 3.0),
+        Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(0.0, 1.0, 0.0),
-        f64::consts::PI / 2.0,
+        f64::consts::PI / 8.0,
         width as f64 / height as f64,
     );
 
-    let mut scene = Scene::new();
-    scene.add_object(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        0.5,
-        Dielectric::new(1.5),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        -0.45,
-        Dielectric::new(1.5),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
-        Lambertian::new(Vec3::new(0.1, 0.2, 0.5)),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(1.0, 0.0, -1.0),
-        0.5,
-        Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.3),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        Lambertian::new(Vec3::new(0.8, 0.8, 0.0)),
-    ));
+    let scene = generate_scene();
 
     let image = Image::new(width, height, |x, y| {
         let avg = (0..samples)
@@ -67,6 +42,56 @@ pub fn render(config: Config) -> Result<(), String> {
     image.save(config.file)?;
 
     Ok(())
+}
+
+fn generate_scene() -> Scene {
+    let mut scene = Scene::new();
+
+    scene.add_object(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        Dielectric::new(1.5),
+    ));
+    scene.add_object(Sphere::new(
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0),
+    ));
+
+    for x in -10..10 {
+        for z in -10..10 {
+            let center = Vec3::new(x as f64 + util::random(), 0.2, z as f64 + util::random());
+
+            scene.add_object(match util::random() {
+                x if x < 0.6 => Sphere::new(
+                    center,
+                    0.2,
+                    Lambertian::new(Vec3::new(util::random(), util::random(), util::random())),
+                ),
+                x if x < 0.9 => Sphere::new(
+                    center,
+                    0.2,
+                    Metal::new(
+                        Vec3::new(util::random(), util::random(), util::random()),
+                        util::random(),
+                    ),
+                ),
+                _ => Sphere::new(center, 0.2, Dielectric::new(1.5)),
+            });
+        }
+    }
+
+    scene
 }
 
 fn color(ray: Ray, scene: &Scene, depth: u32) -> Vec3 {
