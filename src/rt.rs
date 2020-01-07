@@ -14,10 +14,11 @@ pub fn render(config: Config) -> Result<(), String> {
     let samples = 100;
 
     let camera = Camera::new(
-        Vec3::new(0.0, 0.0, 0.0),
-        Vec3::new(-2.0, -1.0, -1.0),
-        Vec3::new(4.0, 0.0, 0.0),
-        Vec3::new(0.0, 2.0, 0.0),
+        Vec3::new(-2.0, 2.0, 1.0),
+        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        f64::consts::PI / 2.0,
+        width as f64 / height as f64,
     );
 
     let mut scene = Scene::new();
@@ -50,14 +51,14 @@ pub fn render(config: Config) -> Result<(), String> {
     let image = Image::new(width, height, |x, y| {
         let avg = (0..samples)
             .map(|_| {
-                let h = (f64::from(x) + util::random()) / f64::from(width);
-                let v = (f64::from(y) + util::random()) / f64::from(height);
+                let h = (x as f64 + util::random()) / width as f64;
+                let v = (y as f64 + util::random()) / height as f64;
                 let ray = camera.ray(h, v);
 
                 color(ray, &scene, 0)
             })
             .fold(Vec3::new(0.0, 0.0, 0.0), |sum, x| sum + x)
-            / f64::from(samples);
+            / samples as f64;
 
         // gamma correction
         avg.map(|x| x.sqrt())

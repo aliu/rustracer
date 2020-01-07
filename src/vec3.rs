@@ -28,6 +28,14 @@ impl Vec3 {
         self / self.norm()
     }
 
+    pub fn cross(&self, other: Vec3) -> Vec3 {
+        Vec3::new(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
+
     pub fn map<F>(&self, f: F) -> Vec3
     where
         F: Fn(f64) -> f64,
