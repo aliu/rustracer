@@ -1,4 +1,5 @@
 use image::{ImageBuffer, Rgb};
+use rayon::prelude::*;
 
 use crate::vec3::Vec3;
 
@@ -7,15 +8,20 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new<F>(width: u32, height: u32, mut f: F) -> Image
+    pub fn new<F>(width: u32, height: u32, f: F) -> Image
     where
-        F: FnMut(u32, u32) -> Vec3,
+        F: Fn(u32, u32) -> Vec3 + Sync + Send,
     {
-        Image {
-            buffer: ImageBuffer::from_fn(width, height, |x, y| {
-                Rgb(f(x, height - y - 1).to_rgb()) // invert y-axis
-            }),
-        }
+        let mut buffer = ImageBuffer::new(width, height);
+
+        buffer
+            .enumerate_pixels_mut()
+            .par_bridge()
+            .for_each(|(x, y, pixel)| {
+                *pixel = Rgb(f(x, height - y - 1).to_rgb());
+            });
+
+        Image { buffer }
     }
 
     pub fn save(&self, path: String) -> Result<(), String> {

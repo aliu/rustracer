@@ -7,6 +7,6 @@ pub struct ScatterData {
     pub scattered: Ray,
 }
 
-pub trait Material {
+pub trait Material: Sync {
     fn scatter(&self, ray: Ray, hit_data: &HitData) -> Option<ScatterData>;
 }

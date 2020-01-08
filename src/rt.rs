@@ -1,5 +1,7 @@
 use std::f64;
 
+use rayon::prelude::*;
+
 use crate::camera::Camera;
 use crate::config::Config;
 use crate::image::Image;
@@ -10,7 +12,7 @@ use crate::util;
 use crate::vec3::Vec3;
 
 pub fn render(config: Config) -> Result<(), String> {
-    let (width, height) = (400, 200);
+    let (width, height) = (720, 480);
     let samples = 10;
 
     let camera = Camera::new(
@@ -25,6 +27,7 @@ pub fn render(config: Config) -> Result<(), String> {
 
     let image = Image::new(width, height, |x, y| {
         let avg = (0..samples)
+            .into_par_iter()
             .map(|_| {
                 let h = (x as f64 + util::random()) / width as f64;
                 let v = (y as f64 + util::random()) / height as f64;
@@ -32,7 +35,7 @@ pub fn render(config: Config) -> Result<(), String> {
 
                 color(ray, &scene, 0)
             })
-            .fold(Vec3::new(0.0, 0.0, 0.0), |sum, x| sum + x)
+            .reduce(|| Vec3::new(0.0, 0.0, 0.0), |sum, x| sum + x)
             / samples as f64;
 
         // gamma correction
