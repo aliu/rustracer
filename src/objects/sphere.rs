@@ -4,9 +4,9 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 pub struct Sphere {
-    center: Vec3,
-    radius: f64,
-    material: Box<dyn Material>,
+    pub center: Vec3,
+    pub radius: f64,
+    pub material: Box<dyn Material>,
 }
 
 impl Sphere {

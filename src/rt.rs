@@ -50,50 +50,60 @@ pub fn render(config: Config) -> Result<(), String> {
 }
 
 fn generate_scene() -> Scene {
-    let mut scene = Scene::new();
-
-    scene.add_object(Sphere::new(
-        Vec3::new(0.0, -1000.0, 0.0),
-        1000.0,
-        Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(-4.0, 1.0, 0.0),
-        1.0,
-        Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(0.0, 1.0, 0.0),
-        1.0,
-        Dielectric::new(1.5),
-    ));
-    scene.add_object(Sphere::new(
-        Vec3::new(4.0, 1.0, 0.0),
-        1.0,
-        Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0),
-    ));
+    let mut spheres = vec![
+        Sphere::new(
+            Vec3::new(0.0, -1000.0, 0.0),
+            1000.0,
+            Lambertian::new(Vec3::new(0.5, 0.5, 0.5)),
+        ),
+        Sphere::new(
+            Vec3::new(-4.0, 1.0, 0.0),
+            1.0,
+            Lambertian::new(Vec3::new(0.4, 0.2, 0.1)),
+        ),
+        Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Dielectric::new(1.5)),
+        Sphere::new(
+            Vec3::new(4.0, 1.0, 0.0),
+            1.0,
+            Metal::new(Vec3::new(0.7, 0.6, 0.5), 0.0),
+        ),
+    ];
 
     for x in -10..10 {
         for z in -10..10 {
             let center = Vec3::new(x as f64 + util::random(), 0.2, z as f64 + util::random());
+            let radius = 0.2;
 
-            scene.add_object(match util::random() {
+            if spheres
+                .iter()
+                .any(|x| (x.center - center).norm() < x.radius + radius)
+            {
+                continue;
+            }
+
+            spheres.push(match util::random() {
                 x if x < 0.6 => Sphere::new(
                     center,
-                    0.2,
+                    radius,
                     Lambertian::new(Vec3::new(util::random(), util::random(), util::random())),
                 ),
                 x if x < 0.9 => Sphere::new(
                     center,
-                    0.2,
+                    radius,
                     Metal::new(
                         Vec3::new(util::random(), util::random(), util::random()),
                         util::random(),
                     ),
                 ),
-                _ => Sphere::new(center, 0.2, Dielectric::new(1.5)),
+                _ => Sphere::new(center, radius, Dielectric::new(1.5)),
             });
         }
+    }
+
+    let mut scene = Scene::new();
+
+    for sphere in spheres {
+        scene.add_object(sphere);
     }
 
     scene
