@@ -21,6 +21,8 @@ pub fn render(config: Config) -> Result<(), String> {
         Vec3::new(0.0, 1.0, 0.0),
         f64::consts::PI / 8.0,
         width as f64 / height as f64,
+        0.1,
+        8.0,
     );
 
     let scene = generate_scene();
